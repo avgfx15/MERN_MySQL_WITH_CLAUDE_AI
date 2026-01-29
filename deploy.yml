@@ -1,0 +1,56 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Deploy to VPS via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        port: ${{ secrets.VPS_PORT || 22 }}
+        script: |
+          echo "🚀 Starting deployment..."
+
+          # Navigate to project directory
+          cd /var/www/mern-mysql-app || exit 1
+
+          # Pull latest changes
+          echo "📥 Pulling latest changes from GitHub..."
+          git pull origin main
+
+          # Backend deployment
+          echo "🔧 Updating backend..."
+          cd backend
+          npm install --production
+
+          # Restart backend with PM2
+          echo "♻️ Restarting backend service..."
+          pm2 restart mern-backend || pm2 start server.js --name mern-backend
+          pm2 save
+
+          # Frontend deployment
+          echo "🎨 Building frontend..."
+          cd ../frontend
+          npm install
+          npm run build
+
+          # Restart Nginx
+          echo "🔄 Restarting Nginx..."
+          sudo systemctl restart nginx
+
+          echo "✅ Deployment completed successfully!"
+
+          # Show PM2 status
+          pm2 status
