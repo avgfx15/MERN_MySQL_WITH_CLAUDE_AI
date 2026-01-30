@@ -4,7 +4,7 @@ const Home = () => {
   return (
     <div style={styles.container}>
       <div style={styles.content}>
-        <h1 style={styles.title}>Welcome to Mid Brain Power</h1>
+        <h1 style={styles.title}>Welcome to Mid Brain Power 2</h1>
         <p style={styles.description}>
           A full-stack application built with MongoDB, Express, React, and
           Node.js
