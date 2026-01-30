@@ -31,7 +31,7 @@ const Login = () => {
   return (
     <div style={styles.container}>
       <div style={styles.formContainer}>
-        <h2 style={styles.title}>Login To Mid Brain Power</h2>
+        <h2 style={styles.title}>Login</h2>
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
             <label style={styles.label}>Email</label>
