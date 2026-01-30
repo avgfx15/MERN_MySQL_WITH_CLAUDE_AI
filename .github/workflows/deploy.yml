@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Deploy to VPS via SSH
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -21,44 +21,9 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           script: |
-            set -e
-
-            echo "🚀 Starting deployment..."
-
-            # Ensure app directory exists
-            sudo mkdir -p /var/www/mern-mysql-app
-            sudo chown -R $USER:$USER /var/www/mern-mysql-app
-
-            cd /var/www/mern-mysql-app
-
-            # Clone repo first time OR pull updates
-            if [ ! -d ".git" ]; then
-              echo "📦 First deployment: cloning repository..."
-              git clone https://github.com/avgfx15/MERN_MySQL_WITH_CLAUDE_AI.git .
-            else
-              echo "📥 Pulling latest changes..."
-              git pull origin main
-            fi
-
-            # Backend deployment
-            echo "🔧 Updating backend..."
-            cd backend
-            npm install --production
-
-            echo "♻️ Restarting backend with PM2..."
-            pm2 restart mern-backend || pm2 start server.js --name mern-backend
-            pm2 save
-
-            # Frontend deployment
-            echo "🎨 Building frontend..."
-            cd ../frontend
+            cd /var/www/stacodev
+            git pull origin main
             npm install
             npm run build
+            pm2 restart all
 
-            # Restart Nginx
-            echo "🔄 Restarting Nginx..."
-            sudo systemctl restart nginx
-
-            echo "✅ Deployment completed successfully!"
-
-            pm2 status
